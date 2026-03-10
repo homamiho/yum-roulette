@@ -3,45 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>午餐吃什麼？魔法菜單</title>
+    <title>Cosmic Cravings - 食運 Icon 版</title>
+    <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #fffdf5; font-family: 'Klee One', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; color: #5d4037; }
-        .card { background: white; padding: 40px; border-radius: 30px; border: 3px solid #e0e0e0; text-align: center; box-shadow: 0 10px 0 #d7ccc8; width: 300px; }
-        #result { font-size: 2rem; margin: 30px 0; min-height: 1.5em; color: #d32f2f; font-weight: bold; }
-        .btn { background: #81c784; color: white; border: none; padding: 15px 30px; border-radius: 50px; font-size: 1.1rem; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 0 #66bb6a; }
-        .btn:active { transform: translateY(5px); box-shadow: none; }
-        .food-icon { font-size: 3rem; display: block; margin-bottom: 10px; }
+        :root { --main-gold: #ffd700; --soft-brown: #5d4037; --cal-red: #e57373; --magic-purple: #b39ddb; }
+        body { background-color: #fff9f0; font-family: 'Klee One', cursive; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; color: var(--soft-brown); overflow: hidden; }
+        
+        /* 霧面紙張質感卡片 */
+        .container { 
+            text-align: center; background: rgba(255, 255, 255, 0.85); 
+            padding: 30px; border-radius: 40px; border: 2px dashed #d7ccc8; 
+            width: 340px; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.03);
+            backdrop-filter: blur(5px);
+        }
+        
+        /* 魔法水晶球 */
+        #food-circle {
+            width: 170px; height: 170px; 
+            background: radial-gradient(circle at 30% 30%, #fff, #ffecb3 40%, #ffcc80 100%);
+            border-radius: 50%; margin: 25px auto; 
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; 
+            cursor: pointer; color: #e65100; font-weight: bold;
+            box-shadow: 0 15px 35px rgba(255, 183, 77, 0.4); 
+            transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            z-index: 5; position: relative;
+            padding: 15px;
+        }
+        #food-circle:active { transform: scale(0.9); }
+
+        /* 球內元素樣式 */
+        #display-icon { font-size: 3.5rem; margin-bottom: 5px; display: block; }
+        #display-name { font-size: 1.3rem; display: block; line-height: 1.2; }
+
+        /* 熱量標籤 */
+        .cal-tag { 
+            font-size: 0.8rem; color: var(--cal-red); 
+            background: rgba(255, 235, 238, 0.8); 
+            padding: 3px 10px; border-radius: 12px; 
+            margin-top: 8px; font-weight: normal;
+            border: 1px solid #ffcdd2;
+        }
+
+        /* 運勢卡片 */
+        #fortune-card {
+            margin-top: 20px; padding: 20px; border-radius: 25px;
+            background: #fffef0; border: 1px solid #ffe082;
+            display: none; animation: slideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(255, 224, 130, 0.2);
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* 金粉粒子 */
+        .particle { position: absolute; background: var(--main-gold); border-radius: 50%; pointer-events: none; z-index: 10; box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+        .hint { font-size: 0.85rem; color: #9e9e9e; margin-bottom: 5px; }
+        
+        /* 中國風小裝飾 */
+        .deco { position: absolute; font-size: 1.5rem; opacity: 0.3; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <span class="food-icon">🍱</span>
-    <h2>今天午餐決定是...</h2>
-    <div id="result">？？？</div>
-    <button class="btn" onclick="pickLunch()">幫我選一個！</button>
+<div class="container" id="main">
+    <span class="deco" style="top:15px; left:15px;">🏮</span>
+    <span class="deco" style="bottom:15px; right:15px;">☁️</span>
+    <h2 style="margin:0; letter-spacing: 2px;">✨ Cosmic Cravings ✨</h2>
+    <p class="hint">觸碰球體，獲取今日食運與熱量</p>
+    
+    <div id="food-circle" onclick="readFortune()">
+        <span id="display-icon">🔮</span>
+        <span id="display-name">點擊感應</span>
+        <span id="display-cal" class="cal-tag" style="display:none;"></span>
+    </div>
+
+    <div id="fortune-card">
+        <div style="font-size: 0.85rem; color: #ffa726; margin-bottom: 8px; letter-spacing: 1px;">── 今日食運預告 ──</div>
+        <strong id="lunch-name" style="font-size: 1.6rem; color: #ef6c00;"></strong>
+        <p id="fortune-text" style="font-size: 1rem; line-height: 1.6; margin: 15px 0; color: #6d4c41;"></p>
+        <div style="font-size: 0.8rem; color: #bcaaa4;">祝你用餐愉快！</div>
+    </div>
 </div>
 
 <script>
-    const foods = ["便利商店", "排骨便當", "減肥～茶葉蛋", "夏威夷拌飯", "牛肉麵", "燒臘飯", "鴨肉飯", "問隔壁的", "義大利麵", "健康餐盒", "麥當當", "鍋燒麵", "麻辣燙", "越南河粉", "素食", "自助餐"];
+    const menu = [
+        { name: "便利商店", icon: "🏪", cal: "~500 kcal", luck: "節奏明快的一天，適合處理瑣碎小事，會有意外的小確幸。" },
+        { name: "排骨便當", icon: "🍱", cal: "~900 kcal", luck: "能量飽滿！今日適合執行大計畫，腳踏實地必有收穫。" },
+        { name: "茶葉蛋", icon: "🥚", cal: "~150 kcal", luck: "身心大掃除的一天，雖然簡單，但內在靈感正在醞釀。" },
+        { name: "夏威夷拌飯", icon: "🥣", cal: "~550 kcal", luck: "生活需要多色彩，今日會遇到有趣的跨領域火花。" },
+        { name: "牛肉麵", icon: "🍜", cal: "~850 kcal", luck: "感情如湯頭般濃郁，今日適合與老朋友聯繫感情。" },
+        { name: "燒臘飯", icon: "🍖", cal: "~950 kcal", luck: "財運旺盛！今日的努力會換來實質的獎勵與回饋。" },
+        { name: "鴨肉飯", icon: "🦆", cal: "~650 kcal", luck: "低調的實力派，今日安靜做事反而更容易被貴人看見。" },
+        { name: "問隔壁的", icon: "👉", cal: "? kcal", luck: "人際關係是關鍵，把選擇權交出去，會有意想不到的驚喜。" },
+        { name: "義大利麵", icon: "🍝", cal: "~700 kcal", luck: "浪漫指數提升，適合換個心情，給自己一點生活儀式感。" },
+        { name: "健康餐盒", icon: "🥗", cal: "~450 kcal", luck: "自律帶來自由，今日適合重新整理生活步調，健康第一。" },
+        { name: "麥當當", icon: "🍔", cal: "~1000 kcal", luck: "效率爆表！速戰速決的決斷力，將為你贏得更多休息時間。" },
+        { name: "鍋燒麵", icon: "🍲", cal: "~600 kcal", luck: "溫暖療癒的一天，適合待在舒適圈，享受平靜的時光。" },
+        { name: "麻辣燙", icon: "🌶️", cal: "~750 kcal", luck: "熱情被點燃！今日會有挑戰性的任務，但你能完美征服。" },
+        { name: "越南河粉", icon: "🥢", cal: "~500 kcal", luck: "清新舒爽，適合開啟新計畫，雜亂的思緒將會變清晰。" },
+        { name: "素食", icon: "🥦", cal: "~550 kcal", luck: "內在平靜，慈悲心帶來好運，今日適合做善事或冥想。" },
+        { name: "自助餐", icon: "🍽️", cal: "~800 kcal", luck: "選擇豐富多樣，今日適合接觸新事物，探索你的多重潛能。" }
+    ];
+
     let isRunning = false;
 
-    function pickLunch() {
+    function readFortune() {
         if (isRunning) return;
         isRunning = true;
-        const resultDiv = document.getElementById('result');
-        let count = 0;
+
+        const circle = document.getElementById('food-circle');
+        const displayIcon = document.getElementById('display-icon');
+        const displayName = document.getElementById('display-name');
+        const displayCal = document.getElementById('display-cal');
+        const card = document.getElementById('fortune-card');
         
-        // 模擬拉霸閃動效果
-        const timer = setInterval(() => {
-            resultDiv.innerText = foods[Math.floor(Math.random() * foods.length)];
+        card.style.display = 'none';
+        displayCal.style.display = 'none';
+        displayName.style.fontSize = "1.3rem"; // 滾動時字體縮小一點
+
+        // 強烈噴發金色特效
+        for(let i=0; i<40; i++) createGoldDust();
+
+        let count = 0;
+        const roll = setInterval(() => {
+            const item = menu[count % menu.length];
+            displayIcon.innerText = item.icon;
+            displayName.innerText = item.name;
             count++;
-            if (count > 15) {
-                clearInterval(timer);
-                isRunning = false;
-                resultDiv.innerHTML = "✨ " + resultDiv.innerText + " ✨";
-            }
-        }, 100);
+        }, 80);
+
+        setTimeout(() => {
+            clearInterval(roll);
+            const final = menu[Math.floor(Math.random() * menu.length)];
+            
+            displayIcon.innerText = final.icon;
+            displayName.innerText = final.name;
+            displayName.style.fontSize = "1.4rem"; // 結果字體放大
+            
+            displayCal.innerText = final.cal;
+            displayCal.style.display = 'inline-block';
+            
+            document.getElementById('lunch-name').innerText = final.icon + " " + final.name;
+            document.getElementById('fortune-text').innerText = final.luck;
+            card.style.display = 'block';
+            isRunning = false;
+        }, 1200);
+    }
+
+    function createGoldDust() {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() * 6 + 2;
+        p.style.width = size + 'px'; p.style.height = size + 'px';
+        p.style.left = '50%'; p.style.top = '50%';
+        document.getElementById('main').appendChild(p);
+
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * 150 + 70;
+        p.animate([
+            { transform: 'translate(-50%, -50%) scale(1.8)', opacity: 1 },
+            { transform: `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px) scale(0)`, opacity: 0 }
+        ], { duration: 1000, easing: 'cubic-bezier(0, .9, .57, 1)' }).onfinish = () => p.remove();
     }
 </script>
 </body>
